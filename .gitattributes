@@ -1,0 +1,44 @@
+# 统一换行处理，避免 Windows / Linux 检出差异
+* text=auto
+
+# 源码与文本：统一为 LF 存储
+*.c      text
+*.cc     text
+*.cpp    text
+*.h      text
+*.hpp    text
+*.inl    text
+*.md     text
+*.txt    text
+*.yaml   text
+*.yml    text
+*.json   text
+*.nsi    text
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+*.ps1    text eol=crlf
+*.sh     text eol=lf
+*.sln    text eol=crlf
+*.vcxproj      text eol=crlf
+*.vcxproj.filters text eol=crlf
+*.props  text eol=crlf
+
+# 资源脚本为 UTF-16LE，禁止任何换行/编码转换
+*.rc     -text
+*.rc2    -text
+
+# 二进制资源，不做差异与转换
+*.ico    binary
+*.png    binary
+*.bmp    binary
+*.dll    binary
+*.exe    binary
+*.lib    binary
+*.pdb    binary
+*.7z     binary
+*.ocd2   binary
+*.bin    binary
+
+# 语言统计
+plum/**   linguist-vendored
+librime/** linguist-vendored

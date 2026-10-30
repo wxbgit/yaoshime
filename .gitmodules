@@ -1,0 +1,27 @@
+#
+# 本项目的 librime 与 plum 采用**内嵌源码（vendored）**方式分发，
+# 而非 Git submodule。这样做是为了让仓库开箱即可构建，
+# 不依赖 submodule 拉取阶段的网络可用性（对国内网络环境尤其重要）。
+#
+# 因此下面这段 .gitmodules 仅作为**来源声明**保留，便于追溯上游与后续人工同步；
+# 当前目录内容不会被 git 当作 submodule 处理。
+#
+# 上游地址：
+#   librime: https://github.com/rime/librime  (BSD 3-Clause)
+#   plum:    https://github.com/rime/plum     (LGPLv3)
+#
+# 同步上游的方式：
+#   git clone --depth 1 https://github.com/rime/librime.git /tmp/librime-new
+#   rm -rf librime && cp -r /tmp/librime-new librime && rm -rf librime/.git
+#
+# 注意：librime/deps/ 被 .gitignore 排除，属于构建期依赖，不随仓库分发。
+#
+[submodule "librime"]
+	path = librime
+	url = https://github.com/rime/librime.git
+	branch = .
+
+[submodule "plum"]
+	path = plum
+	url = https://github.com/rime/plum.git
+	branch = .
