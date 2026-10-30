@@ -216,6 +216,42 @@ inline LONG RegGetStringValue(HKEY key,
   return lRes;
 }
 
+// Registry key holding the installation path. 32-bit and 64-bit builds share
+// this logical name; the physical location depends on the registry view the
+// writer used (WeaselSetup.exe is 32-bit, so its writes land in WOW6432Node).
+inline LPCWSTR get_weasel_reg_key() {
+  return L"Software\\Yaoshime\\Input";
+}
+
+// Reads a string value from HKLM trying the 64-bit view first and the 32-bit
+// (WOW6432Node) view second, so the value written by a 32-bit installer is
+// visible to 64-bit processes and vice versa.
+inline LONG RegGetStringValueWow(HKEY root,
+                                 LPCWSTR lpSubKey,
+                                 LPCWSTR lpValue,
+                                 std::wstring& value) {
+  const REGSAM views[] = {KEY_WOW64_64KEY, KEY_WOW64_32KEY};
+  for (REGSAM view : views) {
+    HKEY hKey = NULL;
+    if (RegOpenKeyExW(root, lpSubKey, 0, KEY_READ | view, &hKey) !=
+        ERROR_SUCCESS) {
+      continue;
+    }
+    WCHAR szValue[MAX_PATH] = {0};
+    DWORD dwBufLen = sizeof(szValue);
+    DWORD dwType = 0;
+    LONG lRes = RegQueryValueExW(hKey, lpValue, NULL, &dwType, (LPBYTE)szValue,
+                                 &dwBufLen);
+    RegCloseKey(hKey);
+    if (lRes == ERROR_SUCCESS && dwType == REG_SZ) {
+      value = std::wstring(szValue);
+      return ERROR_SUCCESS;
+    }
+  }
+  return ERROR_FILE_NOT_FOUND;
+}
+
+
 inline LANGID get_language_id() {
   std::wstring lang{};
   if (RegGetStringValue(HKEY_CURRENT_USER, L"Software\\Yaoshime\\Input",

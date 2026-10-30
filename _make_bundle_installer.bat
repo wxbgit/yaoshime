@@ -21,7 +21,7 @@ if errorlevel 8 (
 
 echo [2/3] Compiling installer ...
 cd output
-"C:\yaoshime\deps\nsis\nsis-3.11\makensis.exe" /DWEASEL_VERSION=1.0.0 /DWEASEL_BUILD=0 /DPRODUCT_VERSION=1.0.0.0 install_bundle.nsi
+"C:\yaoshime\deps\nsis\nsis-3.11\makensis.exe" /DWEASEL_VERSION=1.0.1 /DWEASEL_BUILD=0 /DPRODUCT_VERSION=1.0.1.0 install_bundle.nsi
 set RC=%errorlevel%
 cd ..
 echo MAKENSIS_EXIT=%RC%

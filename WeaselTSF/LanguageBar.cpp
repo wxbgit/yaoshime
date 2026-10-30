@@ -35,13 +35,11 @@ static void HMENU2ITfMenu(HMENU hMenu, ITfMenu* pTfMenu) {
 }
 
 static LPCWSTR GetWeaselRegName() {
-  LPCWSTR WEASEL_REG_NAME_;
-  if (is_wow64())
-    WEASEL_REG_NAME_ = L"Software\\WOW6432Node\\Rime\\Weasel";
-  else
-    WEASEL_REG_NAME_ = L"Software\\Yaoshime\\Input";
-
-  return WEASEL_REG_NAME_;
+  // Always the project's own key name. The old WOW64 branch pointed at the
+  // upstream "Rime\Weasel" key, which does not exist for this fork, so the
+  // "program folder" menu item silently did nothing on 64-bit Windows.
+  // Registry view differences are handled by RegGetStringValueWow().
+  return get_weasel_reg_key();
 }
 
 static bool open(const std::wstring& path) {
@@ -288,7 +286,8 @@ void CLangBarItemButton::SetLangbarStatus(DWORD dwStatus, BOOL fSet) {
 
 std::wstring WeaselTSF::_GetRootDir() {
   std::wstring dir{};
-  RegGetStringValue(HKEY_LOCAL_MACHINE, GetWeaselRegName(), L"WeaselRoot", dir);
+  RegGetStringValueWow(HKEY_LOCAL_MACHINE, GetWeaselRegName(), L"WeaselRoot",
+                       dir);
   return dir;
 }
 
@@ -297,8 +296,8 @@ void WeaselTSF::_HandleLangBarMenuSelect(UINT wID) {
   switch (wID) {
     case ID_WEASELTRAY_RERUN_SERVICE:
     case ID_WEASELTRAY_INSTALLDIR:
-      if (RegGetStringValue(HKEY_LOCAL_MACHINE, GetWeaselRegName(),
-                            L"WeaselRoot", dir) == ERROR_SUCCESS) {
+      if (RegGetStringValueWow(HKEY_LOCAL_MACHINE, GetWeaselRegName(),
+                               L"WeaselRoot", dir) == ERROR_SUCCESS) {
         if (wID == ID_WEASELTRAY_RERUN_SERVICE) {
           std::thread th([dir]() {
             ShellExecuteW(NULL, L"open", (dir + L"\\start_service.bat").c_str(),

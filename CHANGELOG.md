@@ -1,3 +1,22 @@
+<a name="1.0.1"></a>
+## 1.0.1 (2026-10-31)
+
+### 修复（源码级，彻底解决 1.0 的规避方案）
+
+- `WeaselTSF\LanguageBar.cpp`：`GetWeaselRegName()` 删除错误的 WOW64 分支，
+  统一返回本项目自有键名 `Software\Yaoshime\Input`。
+  原分支在 64 位系统上恒为真（`is_wow64()` 判断的是系统而非进程位数），
+  且指向不存在的上游键 `Software\WOW6432Node\Rime\Weasel`，导致「程序文件夹」
+  「重新运行服务」等菜单项静默失效。
+- `WeaselDeployer\SwitcherSettingsDialog.cpp`：`OnGetSchemata()` 同一处复制粘贴的逻辑同步修正。
+- `include\WeaselUtility.h`：新增 `get_weasel_reg_key()` 与 `RegGetStringValueWow()`，
+  按 `KEY_WOW64_64KEY` → `KEY_WOW64_32KEY` 顺序读取，兼容 32 位 `WeaselSetup.exe`
+  写入的 `WOW6432Node` 视图与 64 位进程读取的原生视图。
+
+### 构建
+
+- 版本号 `1.0.1`（程序集 `1.0.1.0`）。
+
 <a name="1.0"></a>
 ## 1.0 (2026-10-31)
 
@@ -8,7 +27,7 @@
 - 修复托盘/语言栏菜单「程序文件夹」点击无响应：`WeaselTSF\LanguageBar.cpp` 的 `GetWeaselRegName()`
   在 WOW64 分支仍使用上游 `Software\WOW6432Node\Rime\Weasel` 键名，且 64 位进程读取的原生视图
   `HKLM\Software\Yaoshime\Input` 未被 32 位 `WeaselSetup.exe` 写入（被重定向到 `WOW6432Node`）。
-  本版通过安装程序补写两处 `WeaselRoot` 键规避，源码改名留待后续版本处理。
+  本版通过安装程序补写两处 `WeaselRoot` 键规避（1.0.1 起改为源码级修复）。
 
 ### 构建与打包
 

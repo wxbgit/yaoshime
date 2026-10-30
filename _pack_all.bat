@@ -84,7 +84,7 @@ if not exist "%NSIS%" (
   goto done
 )
 pushd "%ROOT%\output"
-"%NSIS%" /DWEASEL_VERSION=1.0.0 /DWEASEL_BUILD=0 /DPRODUCT_VERSION=1.0.0.0 install.nsi
+"%NSIS%" /DWEASEL_VERSION=1.0.1 /DWEASEL_BUILD=0 /DPRODUCT_VERSION=1.0.1.0 install.nsi
 set RC=%errorlevel%
 popd
 if not "%RC%"=="0" (echo   ERROR: makensis failed & exit /b 1)

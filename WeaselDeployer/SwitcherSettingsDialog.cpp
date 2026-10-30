@@ -112,48 +112,37 @@ LRESULT SwitcherSettingsDialog::OnClose(UINT, WPARAM, LPARAM, BOOL&) {
 }
 
 LRESULT SwitcherSettingsDialog::OnGetSchemata(WORD, WORD, HWND hWndCtl, BOOL&) {
-  HKEY hKey;
-  std::wstring hPath;
-  if (is_wow64())
-    hPath = _T("Software\\WOW6432Node\\Rime\\Weasel");
-  else
-    hPath = _T("Software\\Yaoshime\\Input");
-  LSTATUS ret = RegOpenKey(HKEY_LOCAL_MACHINE, hPath.c_str(), &hKey);
-  if (ret == ERROR_SUCCESS) {
-    WCHAR value[MAX_PATH];
-    DWORD len = sizeof(value);
-    DWORD type = 0;
-    DWORD data = 0;
-    ret =
-        RegQueryValueExW(hKey, L"WeaselRoot", NULL, &type, (LPBYTE)value, &len);
-    if (ret == ERROR_SUCCESS && type == REG_SZ) {
-      WCHAR parameters[MAX_PATH + 37];
-      wcscpy_s<_countof(parameters)>(
-          parameters,
-          (std::wstring(L"/k \"") + value + L"\\rime-install.bat\"").c_str());
-      SHELLEXECUTEINFOW cmd = {sizeof(SHELLEXECUTEINFO),
-                               SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC,
-                               hWndCtl,
-                               L"open",
-                               L"cmd",
-                               parameters,
-                               NULL,
-                               SW_SHOW,
-                               NULL,
-                               NULL,
-                               NULL,
-                               NULL,
-                               NULL,
-                               NULL,
-                               NULL};
-      ShellExecuteExW(&cmd);
-      WaitForSingleObject(cmd.hProcess, INFINITE);
-      CloseHandle(cmd.hProcess);
-      api_->load_settings(reinterpret_cast<RimeCustomSettings*>(settings_));
-      Populate();
-    }
+  std::wstring value;
+  // Resolve the install path regardless of registry view: WeaselSetup.exe is
+  // 32-bit, so it writes into WOW6432Node while 64-bit builds read the native
+  // view. The old code hard-coded the upstream "Rime\Weasel" key and failed.
+  if (RegGetStringValueWow(HKEY_LOCAL_MACHINE, get_weasel_reg_key(),
+                           L"WeaselRoot", value) == ERROR_SUCCESS) {
+    WCHAR parameters[MAX_PATH + 37];
+    wcscpy_s<_countof(parameters)>(
+        parameters,
+        (std::wstring(L"/k \"") + value + L"\\rime-install.bat\"").c_str());
+    SHELLEXECUTEINFOW cmd = {sizeof(SHELLEXECUTEINFO),
+                             SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC,
+                             hWndCtl,
+                             L"open",
+                             L"cmd",
+                             parameters,
+                             NULL,
+                             SW_SHOW,
+                             NULL,
+                             NULL,
+                             NULL,
+                             NULL,
+                             NULL,
+                             NULL,
+                             NULL};
+    ShellExecuteExW(&cmd);
+    WaitForSingleObject(cmd.hProcess, INFINITE);
+    CloseHandle(cmd.hProcess);
+    api_->load_settings(reinterpret_cast<RimeCustomSettings*>(settings_));
+    Populate();
   }
-  RegCloseKey(hKey);
   return 0;
 }
 
