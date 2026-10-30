@@ -1,0 +1,8 @@
+customization:
+  distribution_code_name: Weasel
+  distribution_version: 0.17.4.1
+  generator: "Weasel::UIStyleSettings"
+  modified_time: "Sat Oct 31 00:15:02 2026"
+  rime_version: 1.17.0
+patch:
+  "style/color_scheme": android

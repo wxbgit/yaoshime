@@ -1,3 +1,28 @@
+<a name="1.0"></a>
+## 1.0 (2026-10-31)
+
+首个以「药师输入法」自有版本号发布的版本。
+
+### 修复
+
+- 修复托盘/语言栏菜单「程序文件夹」点击无响应：`WeaselTSF\LanguageBar.cpp` 的 `GetWeaselRegName()`
+  在 WOW64 分支仍使用上游 `Software\WOW6432Node\Rime\Weasel` 键名，且 64 位进程读取的原生视图
+  `HKLM\Software\Yaoshime\Input` 未被 32 位 `WeaselSetup.exe` 写入（被重定向到 `WOW6432Node`）。
+  本版通过安装程序补写两处 `WeaselRoot` 键规避，源码改名留待后续版本处理。
+
+### 构建与打包
+
+- 版本号统一提升至 `1.0.0`（程序集版本 `1.0.0.0`）：`weasel.props`、`build.bat`、`xbuild.bat`、
+  `_make_installer.bat`、`_pack_all.bat`。
+- 新增 `output\install_bundle.nsi` + `_make_bundle_installer.bat`：生成单文件安装程序，
+  内置上述注册表修复，并把 `%APPDATA%\Yaoshime` 用户配置一并打包、安装时还原。
+
+### 配置留档
+
+- 新增 `custom/`：收录用户手工修改过的词库（`luna_pinyin.dict.yaml` 新增「安瓿」）、
+  方案（`luna_pinyin.schema.yaml` 启用 `lua_translator@*date_translator`）与用户目录配置，
+  含 `lua/date_translator.lua`（日期快捷输入）。
+
 <a name="0.17.4"></a>
 ## [0.17.4](https://github.com/rime/weasel/compare/0.17.3...0.17.4)(2025-06-04)
 
