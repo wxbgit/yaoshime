@@ -148,6 +148,30 @@ rime/librime          输入法引擎核心（跨平台 C++ 库）
 
 卸载：从「设置 → 应用」中找到「药师输入法」卸载，或运行安装目录下的 `uninstall.exe`。
 
+### 单文件全量包（内置用户词库）
+
+`yaoshime-<版本>-bundle.exe` 在普通安装包基础上，额外内嵌了一份**用户目录快照**
+（`%APPDATA%\Yaoshime`），换一台电脑双击即装好，词库无需另外搬运。
+
+内嵌内容：
+
+| 类别 | 文件 |
+|---|---|
+| 用户配置 | `*.custom.yaml`、`user.yaml`、`installation.yaml`、`lua/` |
+| 自定义短语 | `custom_phrase.txt` |
+| 用户词频库 | `luna_pinyin.userdb/`、`terra_pinyin.userdb/`（LevelDB） |
+
+**不含** `build/`（编译缓存，安装后自动重新部署生成）与 `sync/`（同步快照）。
+目标机上若已有 `%APPDATA%\Yaoshime` 配置，安装器会先整体备份到
+`%TEMP%\yaoshime-userdata-backup` 再覆盖。
+
+生成方式：`_make_bundle_installer.bat`。该脚本用 `robocopy /B` 强制读取被
+`WeaselServer.exe` 锁定的词频库文件，并在打包前做完整性自检（关键文件缺失或为空
+直接报错退出），避免打出「看着成功、换机却丢词库」的空包。
+
+> 打包前建议先 `WeaselServer.exe /q` 停掉输入法服务。LevelDB 会排他锁定
+> `*.userdb` 下的日志与 MANIFEST，服务运行中无法取得一致快照。
+
 ---
 
 ## 从源码构建

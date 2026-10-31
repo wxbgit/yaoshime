@@ -25,7 +25,7 @@ Unicode true
 Name "药师输入法 ${WEASEL_VERSION}"
 
 ; The file to write
-OutFile "archives\yaoshime-bundle.exe"
+OutFile "archives\yaoshime-${PRODUCT_VERSION}-bundle.exe"
 
 VIProductVersion "${WEASEL_VERSION}.${WEASEL_BUILD}"
 VIAddVersionKey /LANG=2052 "ProductName" "药师输入法"
@@ -122,7 +122,12 @@ toquit:
   ${EndIf}
 
   ReadRegStr $R0 HKLM "Software\Yaoshime\Input" "InstallDir"
-  StrCmp $R0 "" 0 skip
+  StrCmp $R0 "" default_dir 0
+  ; 注册表里的旧安装目录必须真实存在，否则视为脏残留，回落到默认目录。
+  ; （否则会沿用一个已被删除的路径，安装出来的程序无处可寻。）
+  IfFileExists "$R0\*.*" skip default_dir
+default_dir:
+  StrCpy $R0 ""
   ; The default installation directory
   ; install x64 build for NativeARM64_WINDOWS11 and NativeAMD64_WINDOWS11
   ${If} ${AtLeastWin11} ; Windows 11 and above
@@ -321,7 +326,15 @@ program_files:
   WriteRegStr HKLM SOFTWARE\Yaoshime\Input "ServerExecutable" "WeaselServer.exe"
 
   ; === bundle patch: restore user configuration ===
+  ; 内置的词库一律落到当前登录用户的 %APPDATA%\Yaoshime。
+  ; 若目标机已有配置（用户词频库 / 自定义短语），先整体备份再覆盖，避免丢数据。
   SetShellVarContext current
+  CreateDirectory "$APPDATA\Yaoshime"
+  IfFileExists "$APPDATA\Yaoshime\*.*" 0 restore_userdata
+    RMDir /r "$TEMP\yaoshime-userdata-backup"
+    CreateDirectory "$TEMP\yaoshime-userdata-backup"
+    CopyFiles /SILENT "$APPDATA\Yaoshime\*.*" "$TEMP\yaoshime-userdata-backup"
+restore_userdata:
   SetOutPath "$APPDATA\Yaoshime"
   File /r "userdata\*.*"
   SetShellVarContext all

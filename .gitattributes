@@ -14,8 +14,9 @@
 *.yml    text
 *.json   text
 *.nsi    text
-*.bat    text eol=crlf
-*.cmd    text eol=crlf
+# 批处理含中文时必须以 GBK 落盘，否则 cmd 按系统代码页读取会乱码
+*.bat    text eol=crlf working-tree-encoding=GBK
+*.cmd    text eol=crlf working-tree-encoding=GBK
 *.ps1    text eol=crlf
 *.sh     text eol=lf
 *.sln    text eol=crlf
